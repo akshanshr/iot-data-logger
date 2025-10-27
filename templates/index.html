@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Temperature Dashboard</title>
+
+    <!-- Chart.js for live graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #121212;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #1e1e1e;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            border-bottom: 2px solid #0d7377;
+        }
+        .sensor-card {
+            background: #1f1f1f;
+            width: 300px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px #0d7377;
+        }
+        .sensor-value {
+            font-size: 48px;
+            color: #14ffec;
+            font-weight: bold;
+        }
+        .graph-container {
+            width: 80%;
+            margin: auto;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    🌡 IoT Temperature Monitoring System
+</header>
+
+<div class="sensor-card">
+    <p>Current Temperature</p>
+    <div class="sensor-value" id="tempValue">-- °C</div>
+</div>
+
+<div class="graph-container">
+    <canvas id="tempChart"></canvas>
+</div>
+
+<footer>
+    Designed by Akshansh Rai | IoT Data Logger Simulation
+</footer>
+
+<script>
+    let tempData = [];
+    let labels = [];
+
+    const ctx = document.getElementById('tempChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: tempData,
+                borderWidth: 3,
+                tension: 0.4,
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: "#fff" }
+                }
+            }
+        }
+    });
+
+    function updateData() {
+        fetch('/data')
+            .then(res => res.json())
+            .then(data => {
+                if (data.temperature !== null) {
+                    document.getElementById('tempValue').innerText = data.temperature + " °C";
+
+                    let now = new Date().toLocaleTimeString();
+                    tempData.push(data.temperature);
+                    labels.push(now);
+
+                    if (tempData.length > 20) {
+                        tempData.shift();
+                        labels.shift();
+                    }
+
+                    chart.update();
+                }
+            });
+    }
+
+    setInterval(updateData, 5000);
+</script>
+
+</body>
+</html>
