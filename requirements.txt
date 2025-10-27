@@ -1,5 +1,6 @@
 Flask
 pandas
 matplotlib
+requests
 gunicorn
 

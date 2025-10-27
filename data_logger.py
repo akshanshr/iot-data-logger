@@ -1,36 +1,24 @@
+from flask import Flask, jsonify
 import random
-import math
-import time
-import csv
 from datetime import datetime
 
-filename = "temperature_log.csv"
+app = Flask(__name__)
 
-with open(filename, 'a', newline='') as file:
-    writer = csv.writer(file)
-    if file.tell() == 0:
-        writer.writerow(["Timestamp", "Temperature (°C)"])
+# In-memory storage (List of dictionaries)
+temperature_data = []
 
-print("Simulated realistic temperature logger started...")
+@app.route('/data')
+def data():
+    temp = round(random.uniform(20, 35), 2)
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-base_temp = 25
-angle = 0
+    temperature_data.append({"time": now, "temperature": temp})
 
-try:
-    while True:
-        # smooth sinusoidal variation (like daily temp pattern)
-        temperature = base_temp + math.sin(angle) * 5 + random.uniform(-0.5, 0.5)
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Keep only last 100 entries to avoid excess memory usage
+    temperature_data[:] = temperature_data[-100:]
 
-        with open(filename, 'a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([timestamp, round(temperature, 2)])
+    return jsonify({"time": now, "temperature": temp})
 
-        print(f"{timestamp} -> {temperature:.2f}°C")
-
-        angle += 0.1
-        time.sleep(5)
-
-except KeyboardInterrupt:
-    print("\nLogging stopped by user.")
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
 
