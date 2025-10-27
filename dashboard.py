@@ -27,14 +27,14 @@ def data():
 
 
 # Start background thread
-def start_background_thread():
+def start_thread():
     global t
     if 't' not in globals():
         t = threading.Thread(target=generate_temperature)
         t.daemon = True
         t.start()
 
-start_background_thread()  # ✅ Start thread immediately
+start_thread()  # ✅ Immediately start thread for Render & Gunicorn
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
