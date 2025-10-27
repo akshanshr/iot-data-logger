@@ -73,6 +73,6 @@ def index():
     latest = df.iloc[-1]
     return render_template_string(TEMPLATE, latest_temp=latest['temperature'], last_time=str(latest['time']), plot_url=plot_url)
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0")
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
